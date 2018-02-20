@@ -9,16 +9,13 @@
   "author": "Cindercloud",
   "license": "MIT",
   "devDependencies": {
-    "ethereumjs-testrpc": "^4.0.1",
-    "gulp": "^3.9.1",
-    "gulp-concat": "^2.6.1",
+    "ganache-cli": "^6.0.3",
     "mocha": "^2.2.5",
-    "solidity-coverage": "^0.2.1",
-    "truffle": "^4.0.1",
-    "solium": "^0.5.4",
+    "solidity-coverage": "^0.4.8",
+    "truffle": "^4.0.3",
+    "solium": "^1.1.5",
     "truffle-hdwallet-provider": "0.0.3",
-    "chai": "^3.5.0",
-    "truffle-contract": "^3.0.1",
+    "chai": "^4.1.2",
     "web3": "^0.20.0"
   },
   "dependencies": {}

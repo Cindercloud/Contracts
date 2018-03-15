@@ -2,6 +2,8 @@ pragma solidity ^0.4.19;
 
 //https://etherscan.io/address/0x5f9b61e7d7a7da4f8cd5f5c91eb935993e2d01ef#code
 
+//https://ethfiddle.com/SqY8OqwmbS
+
 import '../ownership/Ownable.sol';
 import '../math/SafeMath.sol';
 import './Token.sol';

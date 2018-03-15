@@ -1,8 +1,6 @@
 pragma solidity ^0.4.19;
 
-//https://etherscan.io/address/0x5f9b61e7d7a7da4f8cd5f5c91eb935993e2d01ef#code
 
-//https://ethfiddle.com/SqY8OqwmbS
 
 import '../ownership/Ownable.sol';
 import '../math/SafeMath.sol';
@@ -13,9 +11,19 @@ contract Flock {
     using SafeMath for uint;
 
     uint256 collectedFunds;
-    mapping(address => uint256) contributions;
+    mapping(address => uint256) public contributions;
     Token token;
     uint percentage;
+
+    function() public payable {
+        contributions[msg.sender] = msg.value;
+    }
+
+    function claimTokens() public {
+        require(contributions[msg.sender] > 0);
+
+        token.transfer(msg.sender, _applyPct(contributions[msg.sender], percentage));
+    }
 
     function enableWithdrawals(address _tokenAddress) public {
         token = Token(_tokenAddress);

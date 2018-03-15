@@ -1,17 +1,22 @@
-//https://ethfiddle.com/uG0sm6z8EZ
+pragma solidity ^0.4.19;
+
+//https://etherscan.io/address/0x5f9b61e7d7a7da4f8cd5f5c91eb935993e2d01ef#code
+
+import '../ownership/Ownable.sol';
+import '../math/SafeMath.sol';
+import './Token.sol';
+
 contract Flock {
 
     using SafeMath for uint;
 
     uint256 collectedFunds;
     mapping(address => uint256) contributions;
-    ERC20 token;
+    Token token;
     uint percentage;
 
-
-
     function enableWithdrawals(address _tokenAddress) public {
-        token = ERC20(_tokenAddress);
+        token = Token(_tokenAddress);
 
         uint allTokens = token.balanceOf(this);
         percentage = _toPct(allTokens, collectedFunds);

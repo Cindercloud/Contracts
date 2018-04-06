@@ -16,10 +16,18 @@ contract('Flock', function (accounts) {
 		flock = await Flock.new();
 	});
 
+	it('should be possible to pay twice', async function () {
+		await web3.eth.sendTransaction({value: (1 * Math.pow(10, 18)), from: accounts[1], to: flock.address});
+		await web3.eth.sendTransaction({value: (1 * Math.pow(10, 18)), from: accounts[1], to: flock.address});
+
+		let contribution = await flock.contributedBy.call(accounts[1]);
+		expect(contribution.toNumber()).to.equal(2 * Math.pow(10, 18));
+	});
+
 	it('should correctly save contributions', async function () {
 		await web3.eth.sendTransaction({value: (1 * Math.pow(10, 18)), from: accounts[1], to: flock.address});
 
-		let contribution = await flock.contributions.call(accounts[1]);
+		let contribution = await flock.contributedBy.call(accounts[1]);
 		expect(contribution.toNumber()).to.equal(1 * Math.pow(10, 18));
 	});
 
@@ -63,6 +71,16 @@ contract('Flock', function (accounts) {
 				'Should have reverted'
 			);
 		}
+	});
+
+	it('should not be possible to claim twice', async function () {
+		await web3.eth.sendTransaction({value: (1 * Math.pow(10, 18)), from: accounts[1], to: flock.address});
+		await web3.eth.sendTransaction({value: (1 * Math.pow(10, 18)), from: accounts[2], to: flock.address});
+
+		await flock.enableWithdrawals(token.address, {from: accounts[0]});
+
+		await flock.claimTokens({from: accounts[2]});
+		await flock.claimTokens({from: accounts[2]});
 	});
 
 	it('should receive all tokens as sole investor', async function () {

@@ -10,19 +10,29 @@ contract Flock is Ownable {
     using SafeMath for uint;
 
     uint256 public collectedFunds;
-    mapping(address => uint256) public contributions;
+    mapping(address => Contribution) public contributions;
     ERC20Basic public token;
     uint public percentage;
 
+    struct Contribution {
+        uint256 amount;
+        bool claimed;
+    }
+
     function() public payable {
-        contributions[msg.sender] = msg.value;
+        if (contributions[msg.sender].amount == 0) {
+            contributions[msg.sender] = Contribution(msg.value, false);
+        } else {
+            contributions[msg.sender].amount = contributions[msg.sender].amount.add(msg.value);
+        }
+
         collectedFunds = collectedFunds.add(msg.value);
     }
 
     function claimTokens() public {
-        require(contributions[msg.sender] > 0);
+        require(contributions[msg.sender].amount > 0);
 
-        token.transfer(msg.sender, _applyPct(contributions[msg.sender], percentage));
+        require(token.transfer(msg.sender, _applyPct(contributions[msg.sender].amount, percentage)));
     }
 
     function enableWithdrawals(address _tokenAddress) public onlyOwner {
@@ -32,6 +42,15 @@ contract Flock is Ownable {
 
         uint allTokens = token.balanceOf(this);
         percentage = _toPct(allTokens, collectedFunds);
+    }
+
+
+    function contributedBy(address _funder) external view returns (uint256) {
+        return contributions[_funder].amount;
+    }
+
+    function claimed(address _funder) external view returns (bool) {
+        return contributions[_funder].claimed;
     }
 
     function _toPct(uint numerator, uint denominator) internal pure returns (uint) {

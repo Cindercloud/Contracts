@@ -14,12 +14,16 @@ contract Flock is Ownable {
     ERC20Basic public token;
     uint public percentage;
 
+    event Claimed(address indexed user, address token, uint256 amount);
+
     struct Contribution {
         uint256 amount;
         bool claimed;
     }
 
     function() public payable {
+        //needs to be more than the minimum contribution
+        require(msg.value > 0);
         if (contributions[msg.sender].amount == 0) {
             contributions[msg.sender] = Contribution(msg.value, false);
         } else {
@@ -30,9 +34,18 @@ contract Flock is Ownable {
     }
 
     function claimTokens() public {
+        //token needs to have been set
+        require(address(token) != address(0));
+        //should have had contributions
         require(contributions[msg.sender].amount > 0);
+        //should not yet have been claimed
+        require(!contributions[msg.sender].claimed);
 
-        require(token.transfer(msg.sender, _applyPct(contributions[msg.sender].amount, percentage)));
+        //set claimed to true first - reentrancy
+        contributions[msg.sender].claimed = true;
+
+        uint256 tokenAmount = _applyPct(contributions[msg.sender].amount, percentage);
+        require(token.transfer(msg.sender, tokenAmount));
     }
 
     function enableWithdrawals(address _tokenAddress) public onlyOwner {
@@ -43,7 +56,6 @@ contract Flock is Ownable {
         uint allTokens = token.balanceOf(this);
         percentage = _toPct(allTokens, collectedFunds);
     }
-
 
     function contributedBy(address _funder) external view returns (uint256) {
         return contributions[_funder].amount;
